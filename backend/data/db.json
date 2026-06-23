@@ -1,0 +1,159 @@
+{
+  "utilisateurs": [
+    {
+      "id": "u1",
+      "nom": "Prof. Jean Martin",
+      "email": "jean.martin@edupath.fr",
+      "role": "admin",
+      "specialite": "Informatique & Technologies",
+      "dateModification": "2026-06-15T14:21:03.158Z"
+    },
+    {
+      "id": "u2",
+      "nom": "Lucas Bernard",
+      "email": "lucas.bernard@etu.edupath.fr",
+      "role": "etudiant",
+      "niveauEtude": "Licence 3 Informatique"
+    },
+    {
+      "id": "u3",
+      "nom": "Directeur Administration",
+      "email": "admin@edupath.fr",
+      "role": "admin"
+    },
+    {
+      "id": "uti_1781533294581_lvjhe",
+      "nom": "anas",
+      "email": "user@gmail.com",
+      "role": "enseignant",
+      "specialite": "Développement Web",
+      "dateCreation": "2026-06-15T14:21:34.581Z"
+    }
+  ],
+  "ressources": [
+    {
+      "id": "res_js_basics",
+      "titre": "Introduction au JavaScript Moderne (ES6+)",
+      "type": "pdf",
+      "hashFichier": "hash_js_basics",
+      "cheminFichier": "uploads/js_basics.pdf",
+      "creePar": "uti_1781533294581_lvjhe",
+      "estValide": true,
+      "dateCreation": "2026-06-15T10:00:00.000Z"
+    },
+    {
+      "id": "res_git_basics",
+      "titre": "Gestion de version avec Git & GitHub",
+      "type": "pdf",
+      "hashFichier": "hash_git_basics",
+      "cheminFichier": "uploads/git_basics.pdf",
+      "creePar": "uti_1781533294581_lvjhe",
+      "estValide": true,
+      "dateCreation": "2026-06-15T12:00:00.000Z"
+    }
+  ],
+  "cartes_mentales": [
+    {
+      "id": "mm_js_basics",
+      "ressourceId": "res_js_basics",
+      "noeudsJSON": "[{\"id\":\"js_root\",\"label\":\"JS Moderne (ES6+)\",\"type\":\"root\",\"description\":\"Notions clés du JavaScript moderne et de ses spécifications ES6.\"},{\"id\":\"js_main1\",\"label\":\"Variables & Portée\",\"type\":\"main\",\"description\":\"Comparaison de let & const avec var, et gestion de la portée de bloc.\"},{\"id\":\"js_main2\",\"label\":\"Fonctions Fléchées\",\"type\":\"main\",\"description\":\"Déclarations de fonctions concises et capture du contexte du this.\"},{\"id\":\"js_main3\",\"label\":\"Déstructuration & Rest/Spread\",\"type\":\"main\",\"description\":\"Manipulation aisée des tableaux et des objets en ES6.\"},{\"id\":\"js_main4\",\"label\":\"Asynchronisme\",\"type\":\"main\",\"description\":\"Gestion asynchrone moderne avec les promesses et async/await.\"},{\"id\":\"js_sub1_1\",\"label\":\"Block scope\",\"type\":\"sub\",\"description\":\"let/const sont limités au bloc d'accolades {}, évitant les fuites.\"},{\"id\":\"js_sub1_2\",\"label\":\"Temporal Dead Zone\",\"type\":\"sub\",\"description\":\"Une variable let/const n'est pas accessible avant sa ligne de déclaration.\"},{\"id\":\"js_sub2_1\",\"label\":\"Syntaxe courte\",\"type\":\"sub\",\"description\":\"Déclaration de fonction compacte sous forme () => expression.\"},{\"id\":\"js_sub2_2\",\"label\":\"This lexical\",\"type\":\"sub\",\"description\":\"Les fonctions fléchées ne lient pas leur propre this, elles utilisent celui du parent.\"},{\"id\":\"js_sub3_1\",\"label\":\"Destructuring\",\"type\":\"sub\",\"description\":\"Extraction facile de propriétés d'objets et d'éléments de tableaux.\"},{\"id\":\"js_sub3_2\",\"label\":\"Rest/Spread (...)\",\"type\":\"sub\",\"description\":\"Spread copie les structures ; Rest regroupe plusieurs arguments dans un tableau.\"},{\"id\":\"js_sub4_1\",\"label\":\"Promesses\",\"type\":\"sub\",\"description\":\"Objet représentant la réussite ou l'échec d'une opération asynchrone.\"},{\"id\":\"js_sub4_2\",\"label\":\"Async/Await\",\"type\":\"sub\",\"description\":\"Sucre syntaxique facilitant la lecture séquentielle et try/catch.\"}]",
+      "liensJSON": "[{\"source\":\"js_root\",\"target\":\"js_main1\"},{\"source\":\"js_root\",\"target\":\"js_main2\"},{\"source\":\"js_root\",\"target\":\"js_main3\"},{\"source\":\"js_root\",\"target\":\"js_main4\"},{\"source\":\"js_main1\",\"target\":\"js_sub1_1\"},{\"source\":\"js_main1\",\"target\":\"js_sub1_2\"},{\"source\":\"js_main2\",\"target\":\"js_sub2_1\"},{\"source\":\"js_main2\",\"target\":\"js_sub2_2\"},{\"source\":\"js_main3\",\"target\":\"js_sub3_1\"},{\"source\":\"js_main3\",\"target\":\"js_sub3_2\"},{\"source\":\"js_main4\",\"target\":\"js_sub4_1\"},{\"source\":\"js_main4\",\"target\":\"js_sub4_2\"}]",
+      "dateCreation": "2026-06-15T10:05:00.000Z"
+    },
+    {
+      "id": "mm_git_basics",
+      "ressourceId": "res_git_basics",
+      "noeudsJSON": "[{\"id\":\"git_root\",\"label\":\"Git & GitHub\",\"type\":\"root\",\"description\":\"Système de contrôle de version décentralisé et plateforme collaborative.\"},{\"id\":\"git_main1\",\"label\":\"Workflows de base\",\"type\":\"main\",\"description\":\"Les trois zones logiques et les étapes d'un enregistrement.\"},{\"id\":\"git_main2\",\"label\":\"Branches & Merge\",\"type\":\"main\",\"description\":\"Gestion des branches parallèles et intégration du code.\"},{\"id\":\"git_main3\",\"label\":\"Collaboration\",\"type\":\"main\",\"description\":\"Mécanismes de synchronisation avec un dépôt distant.\"},{\"id\":\"git_sub1_1\",\"label\":\"Zones de travail\",\"type\":\"sub\",\"description\":\"Working directory (local), Staging area (index), Repository (historique).\"},{\"id\":\"git_sub1_2\",\"label\":\"Commits\",\"type\":\"sub\",\"description\":\"Instantanés immuables de votre projet sauvegardés dans l'historique.\"},{\"id\":\"git_sub2_1\",\"label\":\"git branch\",\"type\":\"sub\",\"description\":\"Création, basculement (checkout) et suppression de branches.\"},{\"id\":\"git_sub2_2\",\"label\":\"git merge\",\"type\":\"sub\",\"description\":\"Fusion de branches et résolution manuelle de conflits de lignes.\"},{\"id\":\"git_sub3_1\",\"label\":\"GitHub\",\"type\":\"sub\",\"description\":\"Plateforme d'hébergement cloud facilitant le travail en équipe.\"},{\"id\":\"git_sub3_2\",\"label\":\"PR / Reviews\",\"type\":\"sub\",\"description\":\"Propositions de fusion examinées et commentées par les pairs.\"}]",
+      "liensJSON": "[{\"source\":\"git_root\",\"target\":\"git_main1\"},{\"source\":\"git_root\",\"target\":\"git_main2\"},{\"source\":\"git_root\",\"target\":\"git_main3\"},{\"source\":\"git_main1\",\"target\":\"git_sub1_1\"},{\"source\":\"git_main1\",\"target\":\"git_sub1_2\"},{\"source\":\"git_main2\",\"target\":\"git_sub2_1\"},{\"source\":\"git_main2\",\"target\":\"git_sub2_2\"},{\"source\":\"git_main3\",\"target\":\"git_sub3_1\"},{\"source\":\"git_main3\",\"target\":\"git_sub3_2\"}]",
+      "dateCreation": "2026-06-15T12:05:00.000Z"
+    }
+  ],
+  "flashcards": [
+    {
+      "id": "fc_js_1",
+      "ressourceId": "res_js_basics",
+      "question": "Qu'est-ce que la portée de bloc (block scope) introduite par let et const en ES6 ?",
+      "reponse": "let et const limitent la visibilité des variables au bloc dans lequel elles sont déclarées (délimité par des accolades {}), contrairement à var qui a une portée de fonction.",
+      "niveauBloom": "Mémorisation"
+    },
+    {
+      "id": "fc_js_2",
+      "ressourceId": "res_js_basics",
+      "question": "Quelle est la principale différence dans la résolution de la valeur de 'this' entre une fonction classique et une fonction fléchée ?",
+      "reponse": "Une fonction classique définit son propre contexte 'this' lors de l'appel. Une fonction fléchée capture lexicalement la valeur de 'this' du contexte englobant dans lequel elle a été définie.",
+      "niveauBloom": "Compréhension"
+    },
+    {
+      "id": "fc_js_3",
+      "ressourceId": "res_js_basics",
+      "question": "Soit un objet const user = { name: 'Alice', age: 25 }. Écrivez la ligne de code permettant d'extraire la propriété name dans une constante à l'aide de la déstructuration.",
+      "reponse": "const { name } = user;",
+      "niveauBloom": "Application"
+    },
+    {
+      "id": "fc_js_4",
+      "ressourceId": "res_js_basics",
+      "question": "Pourquoi l'utilisation de l'opérateur spread (...) sur un objet ne crée-t-elle qu'une copie superficielle (shallow copy) ?",
+      "reponse": "Car il copie uniquement les valeurs des propriétés de premier niveau. Si l'objet contient d'autres objets imbriqués, seules leurs références mémoire sont copiées, pas les objets eux-mêmes.",
+      "niveauBloom": "Analyse"
+    },
+    {
+      "id": "fc_js_5",
+      "ressourceId": "res_js_basics",
+      "question": "Évaluez l'intérêt d'utiliser async/await plutôt que des chaînes de promesses classiques (.then/.catch) en termes de lisibilité.",
+      "reponse": "async/await rend le code asynchrone similaire à du code synchrone, ce qui facilite sa lecture séquentielle. De plus, la gestion des erreurs se fait simplement avec des blocs try/catch classiques, plus lisibles que les .catch() imbriqués.",
+      "niveauBloom": "Évaluation"
+    },
+    {
+      "id": "fc_js_6",
+      "ressourceId": "res_js_basics",
+      "question": "Proposez une fonction asynchrone qui récupère les données d'un profil (/api/profile) et de ses préférences (/api/settings) en parallèle à l'aide de Promise.all.",
+      "reponse": "async function getProfileAndSettings() {\n  const [profileRes, settingsRes] = await Promise.all([\n    fetch('/api/profile'),\n    fetch('/api/settings')\n  ]);\n  return [await profileRes.json(), await settingsRes.json()];\n}",
+      "niveauBloom": "Création"
+    },
+    {
+      "id": "fc_git_1",
+      "ressourceId": "res_git_basics",
+      "question": "Quelle commande Git permet d'ajouter toutes les modifications du dossier courant à la zone d'indexation (Staging Area) ?",
+      "reponse": "git add .",
+      "niveauBloom": "Mémorisation"
+    },
+    {
+      "id": "fc_git_2",
+      "ressourceId": "res_git_basics",
+      "question": "Quelle est la différence fondamentale entre 'git push' et 'git commit' ?",
+      "reponse": "git commit enregistre les modifications dans le dépôt local (historique local), tandis que git push envoie les commits locaux vers un dépôt distant (comme GitHub) pour les partager.",
+      "niveauBloom": "Compréhension"
+    },
+    {
+      "id": "fc_git_3",
+      "ressourceId": "res_git_basics",
+      "question": "Écrivez la commande permettant de créer une nouvelle branche nommée 'feature-login' et de basculer dessus immédiatement.",
+      "reponse": "git checkout -b feature-login",
+      "niveauBloom": "Application"
+    },
+    {
+      "id": "fc_git_4",
+      "ressourceId": "res_git_basics",
+      "question": "Comment survient un conflit de fusion (merge conflict) dans Git et à quel moment ?",
+      "reponse": "Un conflit survient lorsque deux branches modifient la ou les mêmes lignes d'un fichier de manières différentes, et que Git ne peut pas décider automatiquement quelle version conserver lors d'une fusion (git merge).",
+      "niveauBloom": "Analyse"
+    },
+    {
+      "id": "fc_git_5",
+      "ressourceId": "res_git_basics",
+      "question": "Pourquoi est-il fortement recommandé d'utiliser des Pull Requests (PR) plutôt que de pousser directement ses commits sur la branche principale (main) ?",
+      "reponse": "Les PR permettent aux membres de l'équipe de relire le code, d'exécuter des tests automatisés, de discuter des implémentations et de s'assurer de la stabilité avant d'intégrer les changements à la branche principale.",
+      "niveauBloom": "Évaluation"
+    },
+    {
+      "id": "fc_git_6",
+      "ressourceId": "res_git_basics",
+      "question": "Rédigez la séquence de commandes Git nécessaires pour initialiser un dépôt local, ajouter index.html, valider avec un commit et l'envoyer sur main.",
+      "reponse": "git init && git add index.html && git commit -m 'init' && git branch -M main && git remote add origin <url> && git push -u origin main",
+      "niveauBloom": "Création"
+    }
+  ],
+  "jobs": [],
+  "statistiques_apprentissage": []
+}

@@ -1,0 +1,23 @@
+# Dépendances
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Environnement et Secrets
+.env
+backend/.env
+frontend/.env
+*.env
+*.env.local
+
+# Fichiers système et éditeurs
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
+
+# Téléversements utilisateurs
+backend/uploads/*
+!backend/uploads/.gitkeep
