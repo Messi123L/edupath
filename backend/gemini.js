@@ -53,7 +53,7 @@ Si le texte du cours ci-dessous est court (moins de 200 mots) ou s'il s'agit d'u
 
 Le format de sortie DOIT être un JSON valide unique respectant scrupuleusement la structure suivante :
 {
-  "summary": "Résumé structuré et détaillé du cours, avec chapitres et concepts principaux sous forme de synthèse textuelle au format Markdown. Ce résumé doit être pédagogique, instructif et faire au moins 4 paragraphes.",
+  "summary": "Résumé structuré et détaillé du cours, avec chapitres et concepts principaux sous forme de synthèse textuelle au format Markdown. Ce résumé doit être pédagogique, instructif et faire au moins 4 paragraphes. À la toute fin de ce résumé (après les paragraphes), vous DEVEZ obligatoirement ajouter un schéma conceptuel dessiné avec la syntaxe de code Mermaid.js (délimité par un bloc de code comme \`\`\`mermaid \\n graph TD \\n ... \\n \`\`\`) pour illustrer visuellement la structure logique ou le flux des concepts clés du cours.",
   "mindmap": {
     "nodes": [
       { "id": "identifiant_unique_court", "label": "Titre du concept", "type": "root|main|sub|concept", "description": "Explication succinte ou définition" }
@@ -631,5 +631,144 @@ function getSimulatedTranslation(assetType, data, targetLang) {
     return data.map(p => ({ ...p, text: prefix + p.text }));
   }
   return data;
+}
+
+/**
+ * Génère la structure de présentation PowerPoint (titres, puces, notes orateur) à partir du cours.
+ * @param {string} titre Titre du cours
+ * @param {string} texte Contenu du cours
+ * @returns {Promise<Array<{title: string, bulletPoints: string[], speakerNotes: string}>>}
+ */
+export async function generatePowerPointSlides(titre, texte) {
+  if (ai) {
+    try {
+      const model = ai.getGenerativeModel({ model: 'gemini-2.5-flash' });
+      const prompt = `
+Tu es un concepteur pédagogique de présentations PowerPoint.
+Analyse le texte du cours ci-dessous intitulé "${titre}".
+Génère une structure de présentation claire et structurée de 5 à 7 diapositives (slides) pour enseigner ce cours.
+
+Chaque diapositive doit comporter :
+- Un titre court (champ "title")
+- 3 à 5 puces explicatives courtes et précises résumant un aspect du cours (champ "bulletPoints", un tableau de chaînes de caractères)
+- Optionnellement, une note de l'orateur expliquant la diapositive en détail (champ "speakerNotes")
+
+Le format de sortie DOIT être un JSON valide contenant uniquement un tableau d'objets structurés de la façon suivante :
+[
+  {
+    "title": "Introduction à...",
+    "bulletPoints": [
+      "Concept A : définition courte.",
+      "Concept B : enjeu principal.",
+      "Règle de base."
+    ],
+    "speakerNotes": "Bonjour à tous, aujourd'hui nous allons aborder..."
+  }
+]
+
+Reste strictement en langue française (ou dans la langue principale du cours si spécifié).
+
+Texte du cours :
+${texte.substring(0, 20000)}
+`;
+
+      const result = await model.generateContent({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: {
+          responseMimeType: 'application/json'
+        }
+      });
+
+      const responseText = result.response.text();
+      try {
+        return JSON.parse(responseText);
+      } catch (e) {
+        const jsonMatch = responseText.match(/\[\s*\{[\s\S]*\}\s*\]/);
+        if (jsonMatch) {
+          return JSON.parse(jsonMatch[0]);
+        }
+        throw new Error("Format JSON de présentation invalide : " + responseText);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la génération IA de la présentation, passage au simulateur...", error);
+      return generateSimulatedPowerPoint(titre, texte);
+    }
+  } else {
+    return generateSimulatedPowerPoint(titre, texte);
+  }
+}
+
+export function generateSimulatedPowerPoint(titre, texte) {
+  let sentences = [];
+  if (texte && texte.trim().length > 10) {
+    sentences = texte
+      .split(/[.!?\n]+/)
+      .map(s => s.trim().replace(/\s+/g, ' '))
+      .filter(s => s.length > 25 && s.length < 180 && !s.includes('Transcription simulée'));
+  }
+
+  // Fallbacks if no sentences extracted
+  if (sentences.length === 0) {
+    sentences = [
+      `Le sujet principal concerne ${titre}, ce qui représente une compétence essentielle à acquérir.`,
+      `Il est important de comprendre la théorie et de la mettre en œuvre activement.`,
+      `Le cours aborde les notions de base et les architectures fondamentales du sujet.`,
+      `Nous devons passer d'une simple compréhension théorique à une application pratique concrète.`,
+      `L'évaluation des acquis et les tests réguliers permettent de consolider ces connaissances.`
+    ];
+  }
+
+  const uniqueSentences = [...new Set(sentences)].slice(0, 8);
+  while (uniqueSentences.length < 6) {
+    uniqueSentences.push(`Nous étudions en profondeur le concept de ${titre}.`);
+  }
+
+  return [
+    {
+      title: `Introduction à ${titre}`,
+      bulletPoints: [
+        `Vue d'ensemble de la thématique.`,
+        uniqueSentences[0],
+        `Importance de ce domaine dans le développement professionnel.`
+      ],
+      speakerNotes: `Bienvenue à cette présentation de cours sur ${titre}. Nous allons voir ensemble les fondamentaux et comment les appliquer.`
+    },
+    {
+      title: "Principes Théoriques Fondamentaux",
+      bulletPoints: [
+        uniqueSentences[1],
+        uniqueSentences[2] || "Concepts de base à maîtriser.",
+        `Règles de fonctionnement essentielles.`
+      ],
+      speakerNotes: `Cette diapositive aborde les concepts théoriques clés évoqués dans le document de cours. Il est essentiel de bien les comprendre avant de passer à la pratique.`
+    },
+    {
+      title: "Méthodologie & Processus",
+      bulletPoints: [
+        uniqueSentences[3] || "Étapes de mise en oeuvre.",
+        uniqueSentences[4] || "Protocoles à respecter.",
+        `Analyse des facteurs de réussite.`
+      ],
+      speakerNotes: `Nous passons ici à la partie méthodologique. Les processus décrits dans le cours permettent de structurer le travail pas à pas.`
+    },
+    {
+      title: "Applications Pratiques & Exemples",
+      bulletPoints: [
+        uniqueSentences[5] || "Cas d'usage concret.",
+        `Erreurs courantes à éviter lors de la mise en œuvre.`,
+        `Meilleures pratiques recommandées par les experts.`
+      ],
+      speakerNotes: `Cette partie s'intéresse à l'application active des théories étudiées dans des scénarios ou projets réels.`
+    },
+    {
+      title: "Conclusion & Synthèse",
+      bulletPoints: [
+        `Résumé des points essentiels à retenir.`,
+        `Prochaines étapes d'approfondissement du sujet.`,
+        `Méthodes d'évaluation pour valider ses connaissances.`
+      ],
+      speakerNotes: `Pour conclure, rappelez-vous que la maîtrise de ce sujet demande de la pratique régulière. Je vous encourage à faire le quiz et à réviser avec les flashcards.`
+    }
+  ];
 }
 

@@ -9,7 +9,7 @@ export default function DashboardEtudiant({ currentUser, viewMode, onViewResourc
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [lang]);
 
   const fetchData = async () => {
     try {
@@ -23,7 +23,7 @@ export default function DashboardEtudiant({ currentUser, viewMode, onViewResourc
       }
 
       // 2. Récupérer les statistiques de révision de l'étudiant
-      const resStats = await fetch(`http://localhost:5000/api/students/${currentUser.id}/stats`);
+      const resStats = await fetch(`http://localhost:5000/api/students/${currentUser.id}/stats?lang=${lang}`);
       if (resStats.ok) {
         const dataStats = await resStats.json();
         setStats(dataStats);
@@ -199,6 +199,84 @@ export default function DashboardEtudiant({ currentUser, viewMode, onViewResourc
             <div style={{ textAlign: 'center', padding: '3rem 0', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
               {t('bloom_counts_empty')}
             </div>
+          )}
+        </div>
+
+        {/* Gamification Badges Section */}
+        <div className="glass-panel" style={{ padding: '2rem' }}>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '0.3rem' }}>
+            {lang === 'fr' ? "🏆 Badges et Récompenses d'Étude" : lang === 'ar' ? "🏆 شارات وجوائز الدراسة" : "🏆 Study Badges & Rewards"}
+          </h3>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginBottom: '1.5rem' }}>
+            {lang === 'fr' ? "Débloquez ces insignes en complétant vos tâches d'apprentissage active." : lang === 'ar' ? "افتح هذه الشارات عن طريق إكمال مهام التعلم النشط." : "Unlock these badges by completing active learning tasks."}
+          </p>
+
+          {stats && stats.badges && stats.badges.length > 0 ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.2rem' }}>
+              {stats.badges.map(badge => (
+                <div key={badge.id} style={{
+                  background: badge.unlocked ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0.5) 100%)' : 'rgba(0,0,0,0.15)',
+                  border: badge.unlocked ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid var(--border-glass)',
+                  padding: '1.2rem',
+                  borderRadius: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  transition: 'all 0.3s ease',
+                  boxShadow: badge.unlocked ? '0 4px 15px rgba(16, 185, 129, 0.05)' : 'none',
+                  opacity: badge.unlocked ? 1 : 0.65
+                }}>
+                  <div style={{
+                    fontSize: '2.2rem',
+                    background: badge.unlocked ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255,255,255,0.05)',
+                    padding: '0.6rem',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minWidth: '55px',
+                    height: '55px'
+                  }}>
+                    {badge.id === 'badge_novice' && "🎓"}
+                    {badge.id === 'badge_writer' && "✍️"}
+                    {badge.id === 'badge_collaborator' && "💬"}
+                    {badge.id === 'badge_master' && "🏆"}
+                    {badge.id === 'badge_perfect' && "🎯"}
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', width: '100%' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <strong style={{ fontSize: '0.9rem', color: badge.unlocked ? '#10B981' : 'var(--text-primary)' }}>
+                        {badge.label}
+                      </strong>
+                      {badge.unlocked && (
+                        <span style={{ fontSize: '0.62rem', background: '#10B981', color: 'white', padding: '0.15rem 0.4rem', borderRadius: '99px', fontWeight: '800' }}>
+                          {lang === 'fr' ? "Débloqué" : lang === 'ar' ? "مفتوح" : "Unlocked"}
+                        </span>
+                      )}
+                    </div>
+                    <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                      {badge.description}
+                    </span>
+                    <div style={{ marginTop: '0.3rem' }}>
+                      <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.03)', borderRadius: '99px', overflow: 'hidden' }}>
+                        <div style={{ 
+                          width: `${badge.progress}%`, 
+                          height: '100%', 
+                          background: badge.unlocked ? '#10B981' : 'linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%)'
+                        }} />
+                      </div>
+                      <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)', display: 'block', textAlign: 'right', marginTop: '2px' }}>
+                        {badge.progress}% {lang === 'fr' ? "complété" : lang === 'ar' ? "مكتمل" : "completed"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+              {lang === 'fr' ? "Aucun badge disponible." : lang === 'ar' ? "لا توجد شارات متاحة." : "No badges available."}
+            </p>
           )}
         </div>
 

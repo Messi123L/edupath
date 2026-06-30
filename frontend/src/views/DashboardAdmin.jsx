@@ -248,7 +248,7 @@ export default function DashboardAdmin({ currentUser, viewMode, onViewResource }
                       >
                         <option value="etudiant">{t('student')}</option>
                         <option value="enseignant">{t('teacher')}</option>
-                        <option value="admin">{t('admin')}</option>
+                        {u.role === 'admin' && <option value="admin">{t('admin')}</option>}
                       </select>
                     </td>
                     <td style={{ padding: '1.1rem 1rem', color: 'var(--text-muted)', fontSize: '0.8rem' }}>

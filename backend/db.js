@@ -359,6 +359,48 @@ Ce cours aborde les concepts fondamentaux du contrôle de version avec Git et de
       } catch (migrationErr) {
         console.error("[MySQL Migration] Erreur lors de la mise à jour des ressources par défaut :", migrationErr);
       }
+
+      // Migration : Assurer un compte admin unique (u3) et restaurer/supprimer les autres
+      try {
+        // 1. Restaurer Jean Martin (u1) à son rôle original d'enseignant
+        const [martinUser] = await this.pool.execute("SELECT * FROM utilisateurs WHERE id = 'u1'");
+        if (martinUser.length > 0 && martinUser[0].role !== 'enseignant') {
+          await this.pool.execute("UPDATE utilisateurs SET role = 'enseignant' WHERE id = 'u1'");
+          console.log("[MySQL Migration] Rôle de Jean Martin réinitialisé à 'enseignant'.");
+        }
+
+        // 2. S'assurer que u3 existe et possède le rôle admin, l'email et le mot de passe corrects
+        const [adminUser] = await this.pool.execute("SELECT * FROM utilisateurs WHERE id = 'u3'");
+        const defaultAdminPass = hashPassword('admin123');
+        if (adminUser.length === 0) {
+          await this.insert('utilisateurs', {
+            id: "u3",
+            nom: "Directeur Administration",
+            email: "admin@edupath.fr",
+            role: "admin",
+            motDePasse: defaultAdminPass
+          });
+          console.log("[MySQL Migration] Administrateur principal (u3) créé.");
+        } else {
+          await this.pool.execute(
+            "UPDATE utilisateurs SET email = ?, motDePasse = ?, role = ? WHERE id = 'u3'",
+            ["admin@edupath.fr", defaultAdminPass, "admin"]
+          );
+          console.log("[MySQL Migration] Administrateur principal (u3) mis à jour avec les identifiants requis.");
+        }
+
+        // 3. Supprimer tout autre compte admin surnuméraire
+        const [extraAdmins] = await this.pool.execute("SELECT id, nom, email FROM utilisateurs WHERE role = 'admin' AND id != 'u3'");
+        if (extraAdmins.length > 0) {
+          for (const extra of extraAdmins) {
+            await this.pool.execute("DELETE FROM utilisateurs WHERE id = ?", [extra.id]);
+            console.log(`[MySQL Migration] Supprimé compte administrateur surnuméraire : ${extra.nom} (${extra.email})`);
+          }
+        }
+      } catch (adminMigrationErr) {
+        console.error("[MySQL Migration] Erreur lors de la sécurisation du compte admin unique :", adminMigrationErr);
+      }
+
     } catch (err) {
       console.error("[MySQL] Erreur d'initialisation :", err);
     }

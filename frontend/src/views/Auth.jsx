@@ -440,13 +440,6 @@ export default function Auth({ onLoginSuccess }) {
                     <div style={{ fontSize: '1.2rem', marginBottom: '0.1rem' }}>🎓</div>
                     <div style={{ fontSize: '0.75rem', fontWeight: '700' }}>{t('teacher')}</div>
                   </div>
-                  <div 
-                    className={`role-select-card admin ${role === 'admin' ? 'active' : ''}`}
-                    onClick={() => setRole('admin')}
-                  >
-                    <div style={{ fontSize: '1.2rem', marginBottom: '0.1rem' }}>🛠️</div>
-                    <div style={{ fontSize: '0.75rem', fontWeight: '700' }}>{t('admin')}</div>
-                  </div>
                 </div>
               </div>
 

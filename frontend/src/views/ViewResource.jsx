@@ -7,8 +7,19 @@ import { useLanguage } from '../utils/LanguageContext';
 const renderMarkdownToHtml = (md) => {
   if (!md) return '';
   
-  // Basic escaping for safety
-  let html = md
+  // 1. Extract mermaid code blocks to preserve them from escaping
+  const mermaidBlocks = [];
+  let blockId = 0;
+  
+  let parsedMd = md.replace(/```mermaid([\s\S]*?)```/g, (match, code) => {
+    const id = `__MERMAID_BLOCK_${blockId}__`;
+    mermaidBlocks.push({ id, code: code.trim() });
+    blockId++;
+    return id;
+  });
+
+  // 2. Escape HTML characters in the rest of the text for safety
+  let html = parsedMd
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
@@ -28,6 +39,17 @@ const renderMarkdownToHtml = (md) => {
   const processedLines = lines.map(line => {
     const trimmed = line.trim();
     
+    // Check if this line is a placeholder for a mermaid block
+    if (trimmed.startsWith('__MERMAID_BLOCK_') && trimmed.endsWith('__')) {
+      const match = mermaidBlocks.find(b => b.id === trimmed);
+      if (match) {
+        const listSuffix = inList ? '</ul>' : '';
+        inList = false;
+        // Output raw mermaid container with the raw code (unescaped)
+        return `${listSuffix}<div class="mermaid" style="background: var(--bg-card); border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; overflow-x: auto; border: 1px solid var(--border-glass); display: flex; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">${match.code}</div>`;
+      }
+    }
+
     // Unordered lists
     if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
       const content = trimmed.substring(2);
@@ -96,6 +118,8 @@ export default function ViewResource({ resourceId, currentUser, onBack }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isSourceCollapsed, setIsSourceCollapsed] = useState(false);
+  const [pptLoading, setPptLoading] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   // Chatbot states
   const [chatMessages, setChatMessages] = useState([]);
@@ -320,6 +344,75 @@ export default function ViewResource({ resourceId, currentUser, onBack }) {
       }
     };
   }, [activeTab, resourceId, lang]);
+
+  // Render Mermaid diagrams on summary tab active or summary text loaded
+  useEffect(() => {
+    if (activeTab === 'summary' && resource?.resume) {
+      import('mermaid').then((m) => {
+        m.default.initialize({
+          startOnLoad: false,
+          theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default',
+          securityLevel: 'loose',
+        });
+        setTimeout(() => {
+          m.default.run({
+            querySelector: '.mermaid'
+          }).catch(err => console.error("Mermaid parsing error: ", err));
+        }, 100);
+      }).catch(err => console.error("Failed to load mermaid: ", err));
+    }
+  }, [activeTab, resource?.resume]);
+
+  // Handle PowerPoint generation download
+  const handleDownloadPowerPoint = async () => {
+    try {
+      setPptLoading(true);
+      const response = await fetch(`http://localhost:5000/api/resources/${resourceId}/powerpoint?lang=${lang}`);
+      if (!response.ok) {
+        throw new Error(lang === 'fr' ? "Erreur lors de la génération du PowerPoint." : lang === 'ar' ? "خطأ أثناء توليد ملف البوربوينت." : "Error generating PowerPoint presentation.");
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Presentation_${resource.titre.replace(/[^a-zA-Z0-9]/g, '_')}.pptx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      alert(err.message || "Failed to download PowerPoint");
+    } finally {
+      setPptLoading(false);
+    }
+  };
+
+  // Handle PDF Revision Booklet download
+  const handleDownloadPDF = async () => {
+    try {
+      setPdfLoading(true);
+      const studentId = currentUser ? currentUser.id : '';
+      const response = await fetch(`http://localhost:5000/api/resources/${resourceId}/pdf?etudiantId=${studentId}&lang=${lang}`);
+      if (!response.ok) {
+        throw new Error(lang === 'fr' ? "Erreur lors de la génération du livret PDF." : lang === 'ar' ? "خطأ أثناء توليد كتيب المراجعة PDF." : "Error generating PDF booklet.");
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Livret_${resource.titre.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      alert(err.message || "Failed to download PDF booklet");
+    } finally {
+      setPdfLoading(false);
+    }
+  };
 
   const fetchQuiz = async () => {
     try {
@@ -780,11 +873,83 @@ export default function ViewResource({ resourceId, currentUser, onBack }) {
 
           {activeTab === 'summary' && (
             <div className="glass-panel summary-container animate-fade-in" style={{ padding: '2rem', minHeight: '400px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-glass)', paddingBottom: '1rem' }}>
-                <span style={{ fontSize: '1.6rem' }}>📄</span>
-                <h3 style={{ fontSize: '1.25rem', margin: 0, fontWeight: '800' }}>
-                  {lang === 'fr' ? `Synthèse du cours : ${resource.titre}` : lang === 'ar' ? `ملخص المقرر: ${resource.titre}` : `Summary of course: ${resource.titre}`}
-                </h3>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-glass)', paddingBottom: '1rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{ fontSize: '1.6rem' }}>📄</span>
+                  <h3 style={{ fontSize: '1.25rem', margin: 0, fontWeight: '800' }}>
+                    {lang === 'fr' ? `Synthèse du cours : ${resource.titre}` : lang === 'ar' ? `ملخص المقرر: ${resource.titre}` : `Summary of course: ${resource.titre}`}
+                  </h3>
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  {resource.resume && (
+                    <button
+                      onClick={handleDownloadPowerPoint}
+                      disabled={pptLoading}
+                      className="btn btn-primary"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        padding: '0.5rem 1.0rem',
+                        fontSize: '0.8rem',
+                        fontWeight: '700',
+                        borderRadius: '8px',
+                        background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                        color: 'white',
+                        border: 'none',
+                        cursor: pptLoading ? 'not-allowed' : 'pointer',
+                        transition: 'all 0.3s ease',
+                        boxShadow: '0 4px 10px rgba(16, 185, 129, 0.2)'
+                      }}
+                    >
+                      {pptLoading ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" style={{ width: '12px', height: '12px', border: '2px solid white', borderTop: '2px solid transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 1s linear infinite', marginRight: '0.3rem' }}></span>
+                          {lang === 'fr' ? "Génération..." : lang === 'ar' ? "جاري التوليد..." : "Generating..."}
+                        </>
+                      ) : (
+                        <>
+                          <span>📊</span>
+                          {lang === 'fr' ? "Présentation PPTX" : lang === 'ar' ? "عرض PowerPoint" : "PowerPoint Deck"}
+                        </>
+                      )}
+                    </button>
+                  )}
+                  {resource.resume && (
+                    <button
+                      onClick={handleDownloadPDF}
+                      disabled={pdfLoading}
+                      className="btn btn-secondary"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        padding: '0.5rem 1.0rem',
+                        fontSize: '0.8rem',
+                        fontWeight: '700',
+                        borderRadius: '8px',
+                        background: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)',
+                        color: 'white',
+                        border: 'none',
+                        cursor: pdfLoading ? 'not-allowed' : 'pointer',
+                        transition: 'all 0.3s ease',
+                        boxShadow: '0 4px 10px rgba(99, 102, 241, 0.2)'
+                      }}
+                    >
+                      {pdfLoading ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" style={{ width: '12px', height: '12px', border: '2px solid white', borderTop: '2px solid transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 1s linear infinite', marginRight: '0.3rem' }}></span>
+                          {lang === 'fr' ? "Génération..." : lang === 'ar' ? "جاري التوليد..." : "Generating..."}
+                        </>
+                      ) : (
+                        <>
+                          <span>📕</span>
+                          {lang === 'fr' ? "Exporter Livret PDF" : lang === 'ar' ? "تصدير كتيب PDF" : "Export PDF Booklet"}
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
               </div>
               {resource.resume ? (
                 <div 
